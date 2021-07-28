@@ -1,18 +1,48 @@
-import React, { useContext } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { AuthContext } from '../../contexts/auth';
 import { FontAwesome5, FontAwesome } from '@expo/vector-icons';
 import { TextInput } from 'react-native-paper';
+import PostList from '../PostList';
+import firebase from '../../../services/firebase';
 
 export default function Home() {
-  const { signOut } = useContext(AuthContext)
+
+  const [post, setPost] = useState([]);
+  const { signOut } = useContext(AuthContext);
+
+  useEffect(() => {
+    async function postList() {
+      await firebase
+        .database()
+        .ref('posts')
+        .on('value', (snapshot) => {
+          setPost([]);
+          snapshot.forEach((machine) => {
+            let post = {
+              descricao: machine.val().description,
+              nome: machine.val().autor,
+              usuario: machine.val().username,
+              img: machine.val().imgr,
+              like: machine.val().likes,
+              pid: machine.val().id,
+              urid: machine.val().userId
+            };
+            setPost((oldArray) => [...oldArray, post]);
+
+          });
+        });
+    }
+    postList()
+  }, [])
+  
   return (
     <View style={styles.container}>
       <View style={styles.rowBox}>
         <FontAwesome5 name="earlybirds" size={48} color="#852eff" />
         <Text style={styles.txtBox}>Piador</Text>
       </View>
-      <View style={styles.rowBox}>
+      <View style={styles.headerRow}>
         <TextInput
 
           style={styles.txtInput}
@@ -31,6 +61,11 @@ export default function Home() {
           <FontAwesome name="search" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
+      <ScrollView style={styles.scroll}>
+        {post.map((data) => (
+          <PostList data={data} />
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -43,6 +78,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff'
   },
   rowBox: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  headerRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center'
@@ -87,6 +127,8 @@ const styles = StyleSheet.create({
     width: 50,
     borderRadius: 200,
     backgroundColor: '#852eff'
+  }, scroll: {
+    width: 400
   }
 
 })

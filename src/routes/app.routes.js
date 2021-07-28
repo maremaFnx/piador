@@ -1,9 +1,13 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useRoute } from '@react-navigation/native';
+
 import Home from '../pages/Home';
 import PostAdd from '../pages/PostAdd';
 import Camera from '../pages/Camera';
+import FullPost from '../pages/FullPost';
+
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -12,7 +16,9 @@ const AuthStack = createBottomTabNavigator()
 const Stack = createStackNavigator()
 
 
+
 function HomeRoute() {
+
     return (
         <Stack.Navigator
             screenOptions={{
@@ -20,8 +26,7 @@ function HomeRoute() {
                 headerShown: false
             }}>
             <Stack.Screen name="Home" component={Home} />
-
-
+            <Stack.Screen name="FullPost" component={FullPost} />
         </Stack.Navigator>
     )
 }
@@ -43,6 +48,7 @@ function PostAddRoute() {
 }
 
 function AppRoutes() {
+   
     return (
 
         <AuthStack.Navigator
@@ -66,7 +72,7 @@ function AppRoutes() {
                 name="Home"
                 component={HomeRoute}
                 options={{
-                    headerShown: false, tabBarIcon: ({ color  }) => {
+                    headerShown: false, tabBarIcon: ({ color }) => {
                         return <Ionicons name="home-outline" color={color} size={35} />
                     }
                 }}
@@ -82,7 +88,9 @@ function AppRoutes() {
                     }
                 }}
             />
-            
+
+
+
         </AuthStack.Navigator>
     )
 }

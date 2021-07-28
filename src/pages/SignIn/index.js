@@ -18,44 +18,45 @@ export default function SignIn() {
 
   return (
     <View style={styles.container}>
+      <View style={{ margin: 40 }}>
+        <FontAwesome5 name="earlybirds" size={120} color="#852eff" />
+      </View>
+      <TextInput
+        style={styles.txtInput}
+        mode='outlined'
+        theme={{ colors: { underlineColor: 'transparent', primary: 'white' }, roundness: 200 }}
+        autoCorrect={false}
+        placeholder="E-mail"
+        autoCapitalize="none"
+        outlineColor="white"
+        selectionColor="black"
+        onChangeText={(text) => setEmail(text)}
+      >
+      </TextInput>
+      <TextInput
+        style={styles.txtInput}
+        mode='outlined'
+        theme={{ colors: { underlineColor: 'transparent', primary: 'white' }, roundness: 200 }}
+        autoCorrect={false}
+        secureTextEntry={true}
+        placeholder="Senha"
+        autoCapitalize="none"
+        outlineColor="white"
+        selectionColor="black"
+        secureTextEntry={true}
+        onChangeText={(text) => setPassword(text)}
+      >
+      </TextInput>
+      <View style={styles.container}>
 
-        <FontAwesome5 name="earlybirds" size={60} color="black" />
-        <TextInput
-          style={styles.txtInput}
-          mode='outlined'
-          theme={{ colors: { underlineColor: 'transparent', primary: 'white' }, roundness: 200 }}
-          autoCorrect={false}
-          placeholder="E-mail"
-          autoCapitalize="none"
-          outlineColor="white"
-          selectionColor="black"
-          onChangeText={(text) => setEmail(text)}
-        >
-        </TextInput>
-        <TextInput
-          style={styles.txtInput}
-          mode='outlined'
-          theme={{ colors: { underlineColor: 'transparent', primary: 'white' }, roundness: 200 }}
-          autoCorrect={false}
-          secureTextEntry={true}
-          placeholder="Senha"
-          autoCapitalize="none"
-          outlineColor="white"
-          selectionColor="black"
-          secureTextEntry={true}
-          onChangeText={(text) => setPassword(text)}
-        >
-        </TextInput>
-        <View style={styles.container}>
-
-          <TouchableOpacity style={styles.sbmt_btn} onPress={login}>
-            <Text style={styles.txt}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btn2} onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.text5}>Ainda nao tem uma conta?</Text>
-            <Text style={styles.text5}>Cadastre-se aqui.</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.sbmt_btn} onPress={login}>
+          <Text style={styles.txt}>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.singup} onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.singupTxt}>Ainda nao tem uma conta?</Text>
+          <Text style={styles.singupTxt}>Cadastre-se aqui.</Text>
+        </TouchableOpacity>
+      </View>
 
 
 
@@ -77,19 +78,13 @@ const styles = StyleSheet.create({
   logo: {
     color: '#852eff',
     width: 100,
-
   },
   txtInput: {
-    width: 400,
+    width: 350,
     height: 50,
     marginTop: 5,
-    marginBottom: 5
-  },
-  txt: {
-    color: 'white',
-  },
-  txt_title: {
-    color: 'black',
+    marginBottom: 5,
+    
   },
   txt_title_b: {
     color: 'black',
@@ -105,7 +100,32 @@ const styles = StyleSheet.create({
     width: 200,
     height: 50,
     borderRadius: 200,
-    backgroundColor: '#852eff'
+    backgroundColor: '#852eff',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.32,
+    shadowRadius: 5.46,
+    elevation: 9,
+  },
+  singup: {
+    display: 'flex',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginTop: 10
+  },
+  singupTxt: {
+    color: 'black',
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  txt: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20
   }
+
 
 })

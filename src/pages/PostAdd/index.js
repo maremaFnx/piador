@@ -11,13 +11,14 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function PostAdd() {
 
+    const [uriString, setUriString] = useState(' ');
     const navigation = useNavigation()
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
     const [tipo, setTipo] = useState(' ');
     const [image, setImage] = useState(null);
     const [upLoading, setUpLoading] = useState(null);
-
+    const [multiline, setMultiline] = useState(true)
 
     useEffect(() => {
         (async () => {
@@ -71,7 +72,10 @@ export default function PostAdd() {
 
 
         const ref = firebase.storage().ref().child(tipo + '/' + new Date().toISOString());
-
+        let gugu = ref.fullPath.split('/');
+        let vick = gugu[1]
+        setUriString(vick)
+        console.log('STRING:',uriString)
         const snapshot = ref.put(blob);
 
         snapshot.on(firebase.storage.TaskEvent.STATE_CHANGED, () => {
@@ -106,10 +110,12 @@ export default function PostAdd() {
             machine.child(chave).set({
                 description: description,
                 autor: user.name,
-                imgr: tipo + '/' + new Date().toISOString(),
+                imgr: uriString,
                 likes: 0,
+                tipo: tipo,
                 userId: user.uid,
-                id: chave
+                id: chave,
+                username: user.user
             }).then(() => {
                 Keyboard.dismiss();
                 setTitulo('');
@@ -117,7 +123,7 @@ export default function PostAdd() {
                 setTipo('');
 
                 console.log("Data abaixo:", data)
-            }).catch((error) => { console.log(error) })
+            }).catch((error) => { console.log('err', error) })
         } else {
 
         }
@@ -171,19 +177,22 @@ export default function PostAdd() {
                 </View>
             </View>
             <View style={styles.container}>
+                <View style={styles.bck}>
                 <TextInput
-                    numberOfLines={10}
-                    multiline={true}
                     style={styles.txtInput}
                     mode='outlined'
-                    theme={{ colors: { underlineColor: 'transparent', primary: 'white' }, roundness: 30 }}
+                    
+                    theme={{ colors: { primary: '#f7f7f7'  }}}
                     autoCorrect={false}
                     placeholder="Descrição"
                     autoCapitalize="sentences"
                     outlineColor="white"
                     selectionColor="black"
                     onChangeText={(text) => setDescription(text)}
+                    multiline={multiline}
+                    numberOfLines={8}
                 ></TextInput>
+                </View>
                 <View>
                     {imgOrVdo()}
                 </View>
@@ -195,11 +204,11 @@ export default function PostAdd() {
                     <TouchableOpacity style={styles.sbmt_btn} onPress={double}>
                         <Text style={styles.txt}>Publicar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.sbmt_btn} onPress={navigation.navigate('Camera')}>
+                </View>
+                <TouchableOpacity style={styles.sbmt_b} onPress={() => {navigation.navigate('Camera')}}>
                         <FontAwesome5 name="camera" size={24} color="white" />
                         <Text style={styles.txt}>Tirar uma foto</Text>
                     </TouchableOpacity>
-                </View>
 
             </View>
         </>
@@ -238,16 +247,21 @@ const styles = StyleSheet.create({
         borderRadius: 25
     },
     txtInput: {
-        width: 400,
-        height: 150,
+        width: 380,
         marginTop: 5,
         marginBottom: 5,
-        justifyContent: "flex-start"
+        justifyContent: "flex-start",
+        textAlign:'justify',
+        paddingTop: 2.5,
+        paddingBottom: 5,
+        paddingLeft: 10,
+        paddingRight: 10
     },
     txt: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 25
+        fontSize: 25,
+        marginLeft:5
     },
     txt_b: {
         color: 'white',
@@ -277,6 +291,25 @@ const styles = StyleSheet.create({
         display: 'flex',
         alignItems: 'center',
         width: 155,
+        height: 50,
+        borderRadius: 200,
+        backgroundColor: '#852eff'
+    },
+    bck:{
+        backgroundColor: '#f7f7f7',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
+        marginTop: 10
+    },
+    sbmt_b: {
+        marginTop: 10,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        width: 400,
         height: 50,
         borderRadius: 200,
         backgroundColor: '#852eff'
