@@ -56,7 +56,7 @@ function AuthProvider({children}) {
     })
   }
 
-  async function signUp(email, password, name, user, bio) {
+  async function signUp(email, password, name, user, bio, userPic, postLiked) {
 
       await firebase.auth().createUserWithEmailAndPassword(email, password)
           .then(async (value) => {
@@ -67,7 +67,9 @@ function AuthProvider({children}) {
                   user: user, 
                   password: password,
                   bio: bio,
-                  id: uid
+                  id: uid,
+                  userPic: userPic,
+                  postLiked: postLiked
               })
                   .then(() => {
                       let data = {
@@ -76,7 +78,8 @@ function AuthProvider({children}) {
                           user: user, 
                           password: password,
                           bio: bio,
-                          id: uid
+                          id: uid,
+                          userPic: userPic
                       };
                       setUser(data);
                       storageUser(data);

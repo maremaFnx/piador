@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Video, AVPlaybackStatus } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
+import data from 'date-fns'
 
 export default function PostAdd() {
 
@@ -19,6 +20,7 @@ export default function PostAdd() {
     const [image, setImage] = useState(null);
     const [upLoading, setUpLoading] = useState(null);
     const [multiline, setMultiline] = useState(true)
+    const [response, setResponse] = useState('')
 
     useEffect(() => {
         (async () => {
@@ -30,8 +32,10 @@ export default function PostAdd() {
             }
         })();
     }, []);
+    var dNow = new Date();
+    var localdate = dNow.getDate() +'/'+ (dNow.getMonth()+1) +'/'+ dNow.getFullYear() +'T'+ dNow.getHours() +':'+ dNow.getMinutes();
 
-    
+
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -72,10 +76,9 @@ export default function PostAdd() {
 
 
         const ref = firebase.storage().ref().child(tipo + '/' + new Date().toISOString());
-        let gugu = ref.fullPath.split('/');
-        let vick = gugu[1]
-        setUriString(vick)
-        console.log('STRING:',uriString)
+        let img = ref.fullPath.split('/');
+
+
         const snapshot = ref.put(blob);
 
         snapshot.on(firebase.storage.TaskEvent.STATE_CHANGED, () => {
@@ -115,7 +118,9 @@ export default function PostAdd() {
                 tipo: tipo,
                 userId: user.uid,
                 id: chave,
-                username: user.user
+                username: user.user,
+                response: response,
+                data: localdate
             }).then(() => {
                 Keyboard.dismiss();
                 setTitulo('');
@@ -154,11 +159,8 @@ export default function PostAdd() {
     function double() {
         if (description) {
             if (image) {
-                console.log(description);
-                console.log('imagem', image)
-                publish();
                 uploadImg();
-                setImage(null);
+                publish();
                 navigation.navigate('Home');
             } else {
                 ToastAndroid.show("Você não selecionou a imagem.", ToastAndroid.LONG);
@@ -178,20 +180,20 @@ export default function PostAdd() {
             </View>
             <View style={styles.container}>
                 <View style={styles.bck}>
-                <TextInput
-                    style={styles.txtInput}
-                    mode='outlined'
-                    
-                    theme={{ colors: { primary: '#f7f7f7'  }}}
-                    autoCorrect={false}
-                    placeholder="Descrição"
-                    autoCapitalize="sentences"
-                    outlineColor="white"
-                    selectionColor="black"
-                    onChangeText={(text) => setDescription(text)}
-                    multiline={multiline}
-                    numberOfLines={8}
-                ></TextInput>
+                    <TextInput
+                        style={styles.txtInput}
+                        mode='outlined'
+
+                        theme={{ colors: { primary: '#f7f7f7' } }}
+                        autoCorrect={false}
+                        placeholder="Descrição"
+                        autoCapitalize="sentences"
+                        outlineColor="white"
+                        selectionColor="black"
+                        onChangeText={(text) => setDescription(text)}
+                        multiline={multiline}
+                        numberOfLines={8}
+                    ></TextInput>
                 </View>
                 <View>
                     {imgOrVdo()}
@@ -205,10 +207,10 @@ export default function PostAdd() {
                         <Text style={styles.txt}>Publicar</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.sbmt_b} onPress={() => {navigation.navigate('Camera')}}>
-                        <FontAwesome5 name="camera" size={24} color="white" />
-                        <Text style={styles.txt}>Tirar uma foto</Text>
-                    </TouchableOpacity>
+                <TouchableOpacity style={styles.sbmt_b} onPress={() => { navigation.navigate('Camera') }}>
+                    <FontAwesome5 name="camera" size={24} color="white" />
+                    <Text style={styles.txt}>Tirar uma foto</Text>
+                </TouchableOpacity>
 
             </View>
         </>
@@ -251,7 +253,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 5,
         justifyContent: "flex-start",
-        textAlign:'justify',
+        textAlign: 'justify',
         paddingTop: 2.5,
         paddingBottom: 5,
         paddingLeft: 10,
@@ -261,7 +263,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontSize: 25,
-        marginLeft:5
+        marginLeft: 5
     },
     txt_b: {
         color: 'white',
@@ -295,7 +297,7 @@ const styles = StyleSheet.create({
         borderRadius: 200,
         backgroundColor: '#852eff'
     },
-    bck:{
+    bck: {
         backgroundColor: '#f7f7f7',
         display: 'flex',
         justifyContent: 'center',

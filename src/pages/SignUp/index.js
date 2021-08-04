@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ToastAndroid, Image } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { AuthContext } from '../../contexts/auth';
 import firebase from '../../../services/firebase'
+import * as ImagePicker from 'expo-image-picker'
 
 
 export default function SignUp() {
@@ -15,6 +15,9 @@ export default function SignUp() {
   const [name, setName] = useState('');
   const [user, setUser] = useState('');
   const [user_exist, setUser_exist] = useState([]);
+  const [image, setImage] = useState(null);
+  const [userPic, setUserPic] = useState('');
+
 
   useEffect(() => {
     firebase
@@ -44,11 +47,14 @@ export default function SignUp() {
             );
           })
         const bio = " "
-
+        const postLiked = ['onlyaholder']
+        console.log('userPic: ', userPic)
+        uploadImg()
         if (user_exist.includes(user)) {
           ToastAndroid.show("Nome de usuário já em uso.", ToastAndroid.LONG);
-        } else if (email !== '' && password !== '' && name !== '' && user !== '' && bio !== '') {
-          signUp(email, password, name, user, bio)
+        } else if (email !== '' && password !== '' && name !== '' && user !== '' && bio !== '' && userPic !== '') {
+          uploadImg()
+          signUp(email, password, name, user, bio, userPic, postLiked)
         }
       } else {
         ToastAndroid.show("As senhas não são iguais.", ToastAndroid.LONG);
@@ -58,7 +64,61 @@ export default function SignUp() {
 
   }
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
+  const uploadImg = async () => {
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+
+      };
+      xhr.onerror = function () {
+        reject(new TypeError('Request falhou.'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', image, true);
+      xhr.send(null);
+    });
+
+
+
+    const ref = firebase.storage().ref().child('userPic/' + new Date().toISOString());
+    console.log('ref', ref)
+    let a = ref.fullPath.split('/');
+    let b = a[1]
+    console.log(b)
+    setUserPic(a[1])
+    console.log('ok: ', userPic)
+    const snapshot = ref.put(blob);
+
+    snapshot.on(firebase.storage.TaskEvent.STATE_CHANGED, () => {
+      setUpLoading(true)
+    }, (error) => {
+      setUpLoading(false)
+      console.log(error)
+      blob.close();
+      return
+    }, () => {
+      snapshot.ref.getDonwloadURl().then((url) => {
+        setUpLoading(false)
+        console.log('download', url);
+        blob.close();
+        return url;
+      })
+    });
+  }
 
 
   return (
@@ -67,6 +127,7 @@ export default function SignUp() {
         <View style={styles.box}>
           <Text style={styles.txt_title_b}>Preencha seu cadastro para acessar a plataforma:</Text>
         </View>
+
         <TextInput
           style={styles.txtInput}
           mode='outlined'
@@ -97,7 +158,7 @@ export default function SignUp() {
           theme={{ colors: { underlineColor: 'transparent', primary: 'white' }, roundness: 200 }}
           autoCorrect={false}
           placeholder="Usuário"
-          autoCapitalize="sentences"
+          autoCapitalize="none"
           outlineColor="white"
           selectionColor="black"
           onChangeText={(text) => setUser(text)}
@@ -110,7 +171,7 @@ export default function SignUp() {
           autoCorrect={false}
           placeholder="Senha"
           secureTextEntry={true}
-          autoCapitalize="sentences"
+          autoCapitalize="none"
           outlineColor="white"
           selectionColor="black"
           onChangeText={(text) => setPassword(text)}
@@ -124,10 +185,22 @@ export default function SignUp() {
           secureTextEntry={true}
           placeholder="Confirme a senha"
           autoCapitalize="sentences"
+          autoCapitalize="none"
           outlineColor="white"
           selectionColor="black"
           onChangeText={(text) => setPassword_a(text)}
         ></TextInput>
+        <View style={styles.displayBox}>
+          <Image
+            style={styles.imageBox}
+            source={{
+              uri: image
+            }}></Image>
+          <TouchableOpacity style={styles.pick} onPress={pickImage}>
+            <Text style={styles.txt}>Escolha uma foto</Text>
+          </TouchableOpacity>
+        </View>
+
 
         <TouchableOpacity style={styles.sbmt_btn} onPress={cadastrar}>
           <Text style={styles.txt}>Cadastrar</Text>
@@ -159,6 +232,17 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 5
   },
+  imageBox: {
+    width: 200,
+    height: 200,
+    borderRadius: 300
+  },
+  displayBox: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center'
+  },
   txt: {
     color: 'white',
   },
@@ -177,6 +261,17 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     width: 400,
+    height: 50,
+    borderRadius: 200,
+    backgroundColor: '#852eff'
+  },
+  pick: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    width: 200,
     height: 50,
     borderRadius: 200,
     backgroundColor: '#852eff'

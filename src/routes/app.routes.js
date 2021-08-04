@@ -7,9 +7,10 @@ import Home from '../pages/Home';
 import PostAdd from '../pages/PostAdd';
 import Camera from '../pages/Camera';
 import FullPost from '../pages/FullPost';
+import UserProfile  from '../pages/UserProfile';
+import OtherUser from '../pages/OtherUser';
 
-
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 
 const AuthStack = createBottomTabNavigator()
@@ -27,6 +28,7 @@ function HomeRoute() {
             }}>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="FullPost" component={FullPost} />
+            <Stack.Screen name="OtherUser" component={OtherUser} />
         </Stack.Navigator>
     )
 }
@@ -41,6 +43,21 @@ function PostAddRoute() {
             <Stack.Screen name="Camera" component={Camera} />
 
 
+
+        </Stack.Navigator>
+    )
+
+}
+
+function UserProfileRoute() {
+    return (
+        <Stack.Navigator
+            screenOptions={{
+                headerShown: false
+            }}>
+           
+           <Stack.Screen name="UserProfile" component={UserProfile} />
+      
 
         </Stack.Navigator>
     )
@@ -85,6 +102,17 @@ function AppRoutes() {
                     tabBarVisible: false,
                     tabBarIcon: ({ color }) => {
                         return <Ionicons name="add-circle-outline" color={color} size={35} />
+                    }
+                }}
+            />
+
+            <AuthStack.Screen
+                name="UserProfile"
+                component={UserProfileRoute}
+                options={{
+                    tabBarVisible: true,
+                    tabBarIcon: ({ color }) => {
+                        return <MaterialCommunityIcons name="face-profile" size={32} color={color} />
                     }
                 }}
             />

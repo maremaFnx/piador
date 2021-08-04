@@ -9,16 +9,20 @@ export default function PostList({ data }) {
 
     const navigation = useNavigation();
     const [url, setUrl] = useState(null);
-    console.log('urid', data.urid)
-    console.log('pid', data.pid)
-    var pid = data.pid
-    var urid = data.urid
+    var id = data.id;
+    var userId = data.userId;
+
+
     useEffect(() => {
         async function load() {
+            if (data.response != null && data.response != '') {
+                setUrl(data.response);
+            }
             console.log('imgr: ', data.img)
             try {
                 let response = await firebase.storage().ref('image').child(data.img).getDownloadURL();
                 setUrl(response);
+                await firebase.database().ref('posts').child(id).update({response: response})
                 console.log('response', response)
             } catch (err) {
                 console.log('Nenhuma foto foi encontrada.');
@@ -27,29 +31,25 @@ export default function PostList({ data }) {
         load();
     }, []);
 
-    
-
     return (
         <View>
-            <TouchableOpacity onPress={() => { navigation.navigate('FullPost'), {pid: data.pid, urid: data.urid} }}>
+            <TouchableOpacity onPress={() => { navigation.navigate('FullPost', { id, userId }) }}>
                 <Card style={styles.card}>
                     <Card.Content>
-                        <TouchableOpacity onPress={() => { }}>
-                            <Text style={styles.txt}>{data.nome}</Text>
-                            <Text style={styles.txt_b}>{'@' + data.usuario}</Text>
-                        </TouchableOpacity>
+                        <Text style={styles.txt}>{data.nome}</Text>
+                        <Text style={styles.txt_b}>{'@' + data.usuario}</Text>
                         <Paragraph>{data.descricao}</Paragraph>
                         <Image style={styles.imgBox} source={{ uri: url }}></Image>
                         <View style={styles.rowBox}>
                             <View style={{ display: 'flex', flexDirection: 'row', marginRight: 10 }}>
                                 <FontAwesome name="comment" size={24} color='#852eff' />
-                                <Text style={styles.qtdTxt}>{data.like}</Text>
+                                <Text style={styles.qtdTxt}>{data.comments}</Text>
                             </View>
-                            <View style={{ display: 'flex', flexDirection: 'row',}}>
+                            <View style={{ display: 'flex', flexDirection: 'row', }}>
                                 <FontAwesome name="heart" size={24} color='#852eff' />
                                 <Text style={styles.qtdTxt}>{data.like}</Text>
                             </View>
-                            
+
                         </View>
                     </Card.Content>
                 </Card>
@@ -81,13 +81,13 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontStyle: 'italic'
     },
-    qtdTxt:{
+    qtdTxt: {
         color: '#852eff',
         fontWeight: 'bold',
         fontSize: 15,
         marginLeft: 4,
         marginTop: 4
-    },  
+    },
     imgBox: {
         width: 345,
         height: 250,

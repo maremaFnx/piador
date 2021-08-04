@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { AuthContext } from '../../contexts/auth';
 import { FontAwesome5, FontAwesome } from '@expo/vector-icons';
 import { TextInput } from 'react-native-paper';
@@ -9,7 +9,11 @@ import firebase from '../../../services/firebase';
 export default function Home() {
 
   const [post, setPost] = useState([]);
+  const [results, setResults] = useState([]);
+  const [search, setSearch] = useState('');
   const { signOut } = useContext(AuthContext);
+
+
 
   useEffect(() => {
     async function postList() {
@@ -17,7 +21,7 @@ export default function Home() {
         .database()
         .ref('posts')
         .on('value', (snapshot) => {
-          setPost([]);
+          setResults([]);
           snapshot.forEach((machine) => {
             let post = {
               descricao: machine.val().description,
@@ -25,17 +29,71 @@ export default function Home() {
               usuario: machine.val().username,
               img: machine.val().imgr,
               like: machine.val().likes,
-              pid: machine.val().id,
-              urid: machine.val().userId
+              id: machine.val().id,
+              userId: machine.val().userId,
+              response: machine.val().response,
+              data: machine.val().data,
+              comments: machine.val().comments
             };
-            setPost((oldArray) => [...oldArray, post]);
+            
+            
 
+            var spliteData = post.data
+            var spliteData_b
+
+           spliteData = spliteData.split('T');
+           spliteData_b = spliteData[0].split('/');
+           spliteData = spliteData[1].split(':');
+
+           var mydate = new Date(spliteData_b[2], spliteData_b[1] - 1 , spliteData_b[0], spliteData[0] - 3, spliteData[1]); 
+           var descricao = post.descricao
+           var nome = post.nome
+           var usuario = post.usuario
+           var img = post.img
+           var like = post.like
+           var id = post.id
+           var userId = post.userId
+           var response = post.response
+           var data =  mydate
+
+           post = {
+             descricao: post.descricao,
+             nome: post.nome,
+             usuario: post.usuario,
+             img: post.img,
+             like: post.like,
+             id: post.id,
+             userId: post.userId,
+             response: post.response,
+             data: mydate,
+             comments: post.comments
+           }
+            setResults((oldArray) => [...oldArray, post]);
           });
         });
     }
     postList()
   }, [])
-  
+
+  function filtro(value) {
+    if (search === '') {
+      return value;
+    } else {
+      var str = value.descricao
+      if (str.match(search)) {
+        return value;
+      }
+    }
+  }
+
+  function compare(a,b) {
+    return a.data < b.data;
+  }
+
+  const renderItem = ({ item }) => (
+    <PostList data={item} />
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.rowBox}>
@@ -53,18 +111,18 @@ export default function Home() {
           autoCapitalize="sentences"
           outlineColor="white"
           selectionColor="black"
-          onChangeText={(text) => setEmail(text)}
+          onChangeText={(text) => setSearch(text)}
         >
 
         </TextInput>
-        <TouchableOpacity style={styles.searchButton}>
-          <FontAwesome name="search" size={20} color="#fff" />
-        </TouchableOpacity>
       </View>
+
       <ScrollView style={styles.scroll}>
-        {post.map((data) => (
-          <PostList data={data} />
-        ))}
+        <FlatList
+          data={results.filter(filtro).sort(compare)}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+        />
       </ScrollView>
     </View>
   );
